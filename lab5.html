@@ -1,0 +1,99 @@
+<html lang="es">
+  <head>
+  </head>
+  <body>
+    <script type="application/javascript">
+        let pos = ""
+        const submit = (e) =>{
+            const current = new Date();
+            fetch("http://ubeje.xyz:3000/messages", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({sender: 'Donaldo',message: document.getElementById("inp").value, date: current.toLocaleString()})
+        })
+        .then(res => res.json())
+        .then(()=> arrayMensajes())
+    }
+        document.body.style.cssText = "margin: 0;"
+        const appbar = document.createElement('div')
+        appbar.style.cssText = "min-height: 5vh; background: green; color: white; font-size: 50px; align-items: center; display: flex; justify-content: center; position: fixed; width: 100%;"
+        appbar.append('Que pasó app')
+        document.body.append(appbar)
+        const mensajes = document.createElement('div')
+        mensajes.id = "mensajes"
+        mensajes.style.cssText = "display: flex; flex-direction: column; background: red; align-items: center; min-height: 70vh; background: white; width: 100%; overflow-y: scroll;"
+        document.body.append(mensajes)
+        const down = document.createElement('div')
+        down.style.cssText = "min-height: 10vh; background: rgba(0,0,0,0); color: white; font-size: 50px; align-items: center; display: flex; justify-content: center; position: fixed; width: 100%; top: 90%;"
+        const int = document.createElement('input')
+        int.style.cssText = "border-radius: 20px; width: 60%;outline: none; padding: 20px; height: 30px;"
+        int.id = "inp"
+        int.maxLength = 140
+        int.addEventListener("keyup", (event) =>{
+            if (event.keyCode === 13) {
+                submit
+            }
+        })
+        down.append(int)
+        const button = document.createElement('button')
+        button.style.cssText = "margin: 10px;background-color: #4CAF50; border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px; outline: none;"
+        button.append('Send')
+        button.addEventListener('click', submit)
+        down.append(button)
+        document.body.append(down)
+        const arrayMensajes = () =>{
+            fetch("http://ubeje.xyz:3000/messages", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            })
+            .then(res => res.json())
+            .then(res => {
+                res.map(message => {
+                    const mensaje = document.createElement('div')
+                    mensaje.style.cssText = "display: flex; flex-direction: column; background: rgb(71, 148, 74); margin: 10px; padding: 0px; align-self: flex-end; border-radius: 20px; min-width: 100px; color: white;"
+                    const content = document.createElement('p')
+                    const name = document.createElement('h6')
+                    const date = document.createElement('h6')
+                    const image = document.createElement('img')
+                    try{
+                        if(message.sender !== "Donaldo"){
+                            mensaje.style.cssText = "display: flex; flex-direction: column; background: rgb(6, 5, 14); margin: 10px; padding: 0px; align-self: flex-start; border-radius: 20px; min-width: 100px; color: white;"
+                        }
+                        if(message.message.match(/\.(jpeg|jpg|gif|bmp|tiff|png|svg)$/gi)){
+                            image.src = message.message
+                            content.append(image)
+                        }else{
+                            content.append(message.message)
+                        }
+                        name.append(message.sender)
+                        date.append(message.date)
+                        mensaje.appendChild(name)
+                        mensaje.appendChild(content)
+                        mensaje.appendChild(date)
+                        mensajes.append(mensaje)
+
+                        }
+                        catch(err) {
+                            const a = err
+                        }
+
+                })
+            })
+            .then(res => {document.body.scrollTo(0, pos)})
+        }
+        arrayMensajes()
+        let intervalId = window.setInterval(function(){
+            pos = document.body.scrollTop
+            console.log(document.body.scrollTop)
+            mensajes.innerHTML = ""
+            arrayMensajes()
+        }, 5000);
+
+    </script>
+  </body>
+</html>
+
